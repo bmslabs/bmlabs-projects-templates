@@ -21,63 +21,176 @@ npm run dev
 - **src/hooks/** - Custom hooks (useCrud, useForm, useApi)
 - **src/utils/** - Utilidades (validators, formatters, constants)
 - **.github/skills/** - Skills de Copilot para generación de código
-- **.github/prompts/** - Prompts ejecutables para probar
+- **.github/prompts/** - Prompts para usar con Copilot
 
 ## Usando Copilot para Generar Código
 
-### 1. Ejecutar prompts interactivos
+### 4 Opciones para Usar Prompts
+
+El template incluye **8 prompts especializados** disponibles en múltiples formatos:
+
+#### 🔥 Opción 1: Archivos Prompts (.md) - Recomendado
+
+Archivos Markdown con YAML frontmatter (consistente con api-dotnet):
+
+```
+.github/prompts/
+├── A.-CreateComponent.prompt.md      # Crear componentes
+├── B.-CreateApiService.prompt.md     # Crear servicios API
+├── C.-CreateDataGrid.prompt.md       # Crear tablas avanzadas
+├── D.-CreateCustomHook.prompt.md     # Crear custom hooks
+├── E.-CreateLayout.prompt.md         # Crear layouts
+├── F.-CreatePage.prompt.md           # Crear páginas completas
+├── G.-CreateValidator.prompt.md      # Crear validadores Zod
+└── H.-CreateForm.prompt.md           # Crear formularios
+```
+
+**Cómo usarlos:**
+1. Abre uno de los archivos `.prompt.md`
+2. Lee el **Role**, **Goal** y requisitos
+3. Copia el contenido y pégalo en Copilot Chat
+4. Especifica qué necesitas generar
+
+**Ejemplo:**
+```
+Abre: .github/prompts/A.-CreateComponent.prompt.md
+Dile a Copilot: "Según este prompt, crea un componente Button con 
+variantes primary, secondary y danger, size sm/md/lg"
+```
+
+#### 🎯 Opción 2: Menú Interactivo - Para Exploración
+
+Para una experiencia de navegación interactiva:
 
 ```bash
 node .github/prompts/prompts.js
 ```
 
-Esto abrirá un menú interactivo donde puedes:
-- Seleccionar prompts por categoría
-- Ver detalles de cada prompt
-- Copiar prompts para usar en Copilot Chat
+Características:
+- Menú categorizado por tipo
+- Ver descripción de cada prompt
+- Copiar prompts al portapapeles
+- Explorar flujos completos
 
-### 2. Usar Skills directamente en Copilot Chat
+#### 🚀 Opción 3: Skills en Copilot Chat - Para Expertos
+
+Si tienes Copilot Chat abierto, usa comandos directos:
 
 ```
-@copilot /fe-create-component Button type:ui props:"label, onClick"
+@copilot /fe-create-component Button type:ui props:"label, onClick, disabled"
 @copilot /fe-create-api-service productService entity:Product
-@copilot /fe-create-datagrid ProductGrid entity:Product
-@copilot /fe-create-hooks useProduct type:crud
+@copilot /fe-create-datagrid ProductGrid entity:Product columns:"name,price,stock"
+@copilot /fe-create-hooks useProduct type:crud entity:Product
+@copilot /fe-create-layout BackofficeLayout
+@copilot /fe-create-page ProductList
+@copilot /fe-create-validator ProductValidator
+@copilot /fe-create-form ProductForm
 ```
 
-### 3. Leer los Skills para entender cada uno
+#### 📚 Opción 4: Skills Documentation - Para Referencia
 
-- `.github/skills/fe-create-component.md` - Crear componentes
-- `.github/skills/fe-create-api-service.md` - Crear servicios
-- `.github/skills/fe-create-datagrid.md` - Crear tablas
-- `.github/skills/fe-create-hooks.md` - Crear hooks
+Guías completas con patrones, ejemplos y mejores prácticas:
 
-## Flujo de Trabajo Recomendado para CRUD
+| Skill | Documentación |
+|-------|--------------|
+| Component | `.github/skills/fe-create-component.md` |
+| API Service | `.github/skills/fe-create-api-service.md` |
+| DataGrid | `.github/skills/fe-create-datagrid.md` |
+| Custom Hook | `.github/skills/fe-create-hooks.md` |
 
-### 1. Definir requerimiento
-Ej: "Necesito un CRUD de Productos"
+---
 
-### 2. Crear servicio de API
-```
-@copilot /fe-create-api-service productService entity:Product
-```
+## Flujo de Trabajo Recomendado: CRUD Completo
 
-### 3. Crear hooks personalizados
-```
-@copilot /fe-create-hooks useProduct type:crud entity:Product service:productService
-```
+### Escenario: Crear CRUD de Productos
 
-### 4. Crear validadores
-```
-@copilot /fe-create-component ProductForm type:form props:"product, onSubmit"
-```
+#### Paso 1: Crear Servicio de API
 
-### 5. Crear tabla/grid
-```
-@copilot /fe-create-datagrid ProductDataGrid entity:Product columns:"name,price,stock" actions:"edit,delete"
+**Opción A (Archivo .md):**
+```bash
+# Abrir: .github/prompts/B.-CreateApiService.prompt.md
+# Leer Role y Goal
+# En Copilot Chat: "Según este prompt, crea un servicio ProductService 
+# para la entidad Product con métodos CRUD y búsqueda"
 ```
 
-### 6. Crear página
+**Opción B (Menú):**
+```bash
+node .github/prompts/prompts.js
+# → Seleccionar Services
+# → B.-CreateApiService
+# → Copiar
+```
+
+**Opción C (Skill directo):**
+```
+@copilot /fe-create-api-service productService entity:Product endpoints:"search,getByCategory"
+```
+
+#### Paso 2: Crear Custom Hook
+
+**Opción A (Archivo .md):**
+```bash
+# Abrir: .github/prompts/D.-CreateCustomHook.prompt.md
+# En Copilot: "Crea un hook useProduct type:crud entity:Product service:productService"
+```
+
+**Opción B (Menú):**
+```bash
+node .github/prompts/prompts.js
+# → Seleccionar Hooks
+# → D.-CreateCustomHook
+```
+
+**Opción C (Skill):**
+```
+@copilot /fe-create-hooks useProduct type:crud entity:Product
+```
+
+#### Paso 3: Crear Validadores
+
+**Opción A (Archivo .md):**
+```bash
+# Abrir: .github/prompts/G.-CreateValidator.prompt.md
+```
+
+**Opción C (Skill):**
+```
+@copilot /fe-create-validator ProductValidator
+```
+
+#### Paso 4: Crear Formulario
+
+**Opción A (Archivo .md):**
+```bash
+# Abrir: .github/prompts/H.-CreateForm.prompt.md
+```
+
+**Opción C (Skill):**
+```
+@copilot /fe-create-form ProductForm
+```
+
+#### Paso 5: Crear Tabla/DataGrid
+
+**Opción A (Archivo .md):**
+```bash
+# Abrir: .github/prompts/C.-CreateDataGrid.prompt.md
+```
+
+**Opción C (Skill):**
+```
+@copilot /fe-create-datagrid ProductDataGrid entity:Product columns:"name,price,stock"
+```
+
+#### Paso 6: Crear Página
+
+**Opción A (Archivo .md):**
+```bash
+# Abrir: .github/prompts/F.-CreatePage.prompt.md
+```
+
+**Opción C (Skill):**
 ```
 @copilot /fe-create-page ProductList
 ```
