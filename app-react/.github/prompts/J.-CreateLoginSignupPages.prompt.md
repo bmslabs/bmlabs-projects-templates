@@ -1,9 +1,8 @@
 ---
-agent: "GitHub Copilot"
-model: "Claude - Haiku 4.5"
+agent: agent
 name: "CreateLoginSignupPages"
 description: "Generate Login and Signup pages with form validation and auth integration"
-tools: ["read_file", "create_file", "edit_notebook_file"]
+tools: [execute, read, edit, search, web, agent, todo]
 argument-hint: "No arguments required - generates complete auth pages with validation"
 ---
 

@@ -1,9 +1,8 @@
 ---
-agent: "GitHub Copilot"
-model: "Claude - Haiku 4.5"
+agent: agent
 name: "CreateProtectedRoute"
 description: "Generate ProtectedRoute component for role and permission-based access control"
-tools: ["read_file", "create_file", "edit_notebook_file"]
+tools: [execute, read, edit, search, web, agent, todo]
 argument-hint: "No arguments required - generates access control wrapper component"
 ---
 

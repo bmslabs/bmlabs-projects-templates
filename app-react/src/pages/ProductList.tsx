@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
-import { BackofficeLayout } from '@/components/layout';
-import { productService } from '@/services';
-import { useCrud } from '@/hooks';
+import { BackofficeLayout } from '../components/layout/BackofficeLayout';
+import { Product, productService } from '../services/productService';
+import { useCrud } from '../hooks/useCrud';
 
 /**
  * Página de ejemplo - Lista de Productos Backoffice
@@ -61,7 +61,7 @@ export const ProductListPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {products.map((product) => (
+                {products.map((product: Product) => (
                   <tr
                     key={product.id}
                     className="border-b hover:bg-gray-50 transition"

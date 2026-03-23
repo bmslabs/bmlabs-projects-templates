@@ -1,21 +1,17 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-
-// Layout
-import { MainLayout } from '@/components/layout/MainLayout';
 
 // Auth Pages
 import { LoginPage } from '@/pages/auth/LoginPage';
 import { SignupPage } from '@/pages/auth/SignupPage';
 import { ProfilePage } from '@/pages/auth/ProfilePage';
 
-// Public Pages
-import { HomePage } from '@/pages/HomePage';
-import { NotFoundPage } from '@/pages/NotFoundPage';
-
 // Protected Pages (ejemplos - crear según necesites)
+// import { MainLayout } from '@/components/layout/MainLayout';
+// import { HomePage } from '@/pages/HomePage';
+// import { NotFoundPage } from '@/pages/NotFoundPage';
 // import { DashboardPage } from '@/pages/DashboardPage';
 // import { AdminPanel } from '@/pages/admin/AdminPanel';
 // import { Editor } from '@/pages/editor/Editor';
@@ -51,14 +47,14 @@ export const App: React.FC = () => {
           <Route path="/signup" element={<SignupPage />} />
 
           {/* Home con layout principal */}
-          <Route
+          {/* <Route
             path="/"
             element={
               <MainLayout>
                 <HomePage />
               </MainLayout>
             }
-          />
+          /> */}
 
           {/* ====== PROTECTED ROUTES (solo autenticado) ====== */}
 
@@ -67,9 +63,7 @@ export const App: React.FC = () => {
             path="/profile"
             element={
               <ProtectedRoute>
-                <MainLayout>
-                  <ProfilePage />
-                </MainLayout>
+                <ProfilePage />
               </ProtectedRoute>
             }
           />
@@ -127,7 +121,7 @@ export const App: React.FC = () => {
           /> */}
 
           {/* ====== CATCH-ALL (404) ====== */}
-          <Route path="*" element={<NotFoundPage />} />
+          {/* <Route path="*" element={<NotFoundPage />} /> */}
         </Routes>
       </BrowserRouter>
     </AuthProvider>

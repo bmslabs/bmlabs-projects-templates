@@ -1,9 +1,8 @@
 ---
-agent: "GitHub Copilot"
-model: "Claude - Haiku 4.5"
+agent: agent
 name: "CreateAuthContext"
 description: "Generate AuthContext and useAuth hook for application-wide authentication state management"
-tools: ["read_file", "create_file", "edit_notebook_file"]
+tools: [execute, read, edit, search, web, agent, todo]
 argument-hint: "No arguments required - generates complete auth context with login/signup/logout"
 ---
 

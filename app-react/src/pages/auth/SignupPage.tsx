@@ -109,14 +109,14 @@ export const SignupPage: React.FC = () => {
    */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
+    setFormData((prev: SignupData) => ({
       ...prev,
       [name]: value,
     }));
     
     // Clear field error when user starts typing
     if (errors[name as keyof FormErrors]) {
-      setErrors((prev) => ({
+      setErrors((prev: FormErrors) => ({
         ...prev,
         [name]: undefined,
       }));

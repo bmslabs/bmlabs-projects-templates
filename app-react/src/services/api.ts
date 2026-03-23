@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosError } from 'axios';
+import axios, { AxiosInstance, AxiosError, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
 /**
  * Cliente HTTP configurado para comunicación con API backend
@@ -18,22 +18,22 @@ class ApiClient {
 
     // Interceptor para agregar token de autenticación
     this.instance.interceptors.request.use(
-      (config) => {
+      (config: InternalAxiosRequestConfig) => {
         const token = localStorage.getItem('auth_token');
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
       },
-      (error) => {
+      (error: AxiosError) => {
         return Promise.reject(error);
       }
     );
 
     // Interceptor para manejar errores
     this.instance.interceptors.response.use(
-      (response) => response.data,
-      (error: AxiosError) => {
+      (response: AxiosResponse) => response.data,
+      (error: AxiosError<{ message?: string }>) => {
         if (error.response?.status === 401) {
           // Logout si token expirado
           localStorage.removeItem('auth_token');
@@ -48,23 +48,23 @@ class ApiClient {
     );
   }
 
-  get<T>(url: string, config?: unknown) {
+  get<T>(url: string, config?: AxiosRequestConfig) {
     return this.instance.get<unknown, T>(url, config);
   }
 
-  post<T>(url: string, data?: unknown, config?: unknown) {
+  post<T>(url: string, data?: unknown, config?: AxiosRequestConfig) {
     return this.instance.post<unknown, T>(url, data, config);
   }
 
-  put<T>(url: string, data?: unknown, config?: unknown) {
+  put<T>(url: string, data?: unknown, config?: AxiosRequestConfig) {
     return this.instance.put<unknown, T>(url, data, config);
   }
 
-  patch<T>(url: string, data?: unknown, config?: unknown) {
+  patch<T>(url: string, data?: unknown, config?: AxiosRequestConfig) {
     return this.instance.patch<unknown, T>(url, data, config);
   }
 
-  delete<T>(url: string, config?: unknown) {
+  delete<T>(url: string, config?: AxiosRequestConfig) {
     return this.instance.delete<unknown, T>(url, config);
   }
 }

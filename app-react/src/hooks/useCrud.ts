@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 
 /**
  * Hook genérico para operaciones CRUD
@@ -9,10 +9,10 @@ export interface UseCrudResult<T extends { id: string }> {
   item: T | null;
   loading: boolean;
   error: Error | null;
-  create: (data: Omit<T, 'id'>) => Promise<T>;
+  create: (data: any) => Promise<T>;
   read: (id: string) => Promise<T>;
-  readAll: (filters?: unknown) => Promise<T[]>;
-  update: (id: string, data: Partial<T>) => Promise<T>;
+  readAll: (filters?: any) => Promise<T[]>;
+  update: (id: string, data: any) => Promise<T>;
   delete: (id: string) => Promise<void>;
   reset: () => void;
   clearError: () => void;
@@ -22,12 +22,12 @@ export interface UseCrudResult<T extends { id: string }> {
  * Hook reutilizable para CRUD genérico
  * Use con cualquier entidad que tenga un servicio
  */
-export const useCrud = <T extends { id: string }>(
+export const useCrud = <T extends { id: string }, F = unknown>(
   service: {
-    getAll: (filters?: unknown) => Promise<T[]>;
+    getAll?: (filters?: F) => Promise<T[]>;
     getById: (id: string) => Promise<T>;
-    create: (data: unknown) => Promise<T>;
-    update: (id: string, data: unknown) => Promise<T>;
+    create: (data: any) => Promise<T>;
+    update: (id: string, data: any) => Promise<T>;
     delete: (id: string) => Promise<void>;
   }
 ): UseCrudResult<T> => {
@@ -80,13 +80,13 @@ export const useCrud = <T extends { id: string }>(
   );
 
   const readAll = useCallback(
-    async (filters?: unknown) => {
+    async (filters?: F) => {
       try {
         setLoading(true);
         setError(null);
-        const result = await service.getAll(filters);
-        setItems(result);
-        return result;
+        const result = await service.getAll?.(filters);
+        setItems(result || []);
+        return result || [];
       } catch (err) {
         handleError(err, 'useCrud.readAll');
         throw err;

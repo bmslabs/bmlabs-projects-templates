@@ -235,7 +235,7 @@ export const ProfilePage: React.FC = () => {
               <p className="mt-1 text-sm text-red-600">{errors.bio}</p>
             )}
             <p className="mt-1 text-sm text-gray-500">
-              {formData.bio.length}/500 characters
+              {(formData.bio || '').length}/500 characters
             </p>
           </div>
 

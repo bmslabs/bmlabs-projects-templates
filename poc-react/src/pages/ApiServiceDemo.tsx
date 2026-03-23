@@ -3,7 +3,7 @@
  * Demonstrates CRUD operations with API services
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button, Input } from '../components';
 import { Product } from '../services/ProductService';
 

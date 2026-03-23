@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
-import { Header, Footer } from '@/components/common';
-import { productService } from '@/services';
-import { useCrud } from '@/hooks';
+import { Header } from '../components/common/Header';
+import { Footer } from '../components/common/Footer';
+import { useCrud } from '../hooks/useCrud';
+import { Product, productService } from '../services/productService';
 
 /**
  * Página de ejemplo - Inicio
@@ -67,7 +68,7 @@ export const Home: React.FC = () => {
             <div className="text-center py-8">Cargando productos...</div>
           ) : products.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {products.map((product) => (
+              {products.map((product: Product) => (
                 <div
                   key={product.id}
                   className="border border-gray-200 p-4 rounded hover:shadow-md transition"

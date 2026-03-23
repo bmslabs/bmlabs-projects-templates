@@ -8,12 +8,11 @@ import { Button, Input } from '../components';
 import { useAuth } from '../contexts/AuthContext';
 import {
   validateEmail,
-  validatePassword,
-  validateRequired
+  validatePassword
 } from '../validators';
 
 const AuthDemo: React.FC = () => {
-  const { user, isAuthenticated, isLoading, login, logout, error } = useAuth();
+  const { user, isAuthenticated, isLoading, login, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<'login' | 'info'>('info');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

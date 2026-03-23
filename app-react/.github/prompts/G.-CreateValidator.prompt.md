@@ -1,6 +1,5 @@
 ---
 agent: agent
-model: Claude Opus 4.6 (copilot)
 name: CreateValidator
 description: Crear validadores dengan Zod para validación de esquemas y datos
 tools: [execute, read, edit, search, web, agent, todo]

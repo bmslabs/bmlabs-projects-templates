@@ -1,6 +1,5 @@
 ---
 agent: agent
-model: Claude Opus 4.6 (copilot)
 name: CreateCustomHook
 description: Crear custom hooks para lógica compartida, state management y efectos
 tools: [execute, read, edit, search, web, agent, todo]

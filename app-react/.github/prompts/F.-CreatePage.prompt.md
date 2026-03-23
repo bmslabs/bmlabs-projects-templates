@@ -1,6 +1,5 @@
 ---
 agent: agent
-model: Claude Opus 4.6 (copilot)
 name: CreatePage
 description: Crear páginas completas integrando componentes, hooks y servicios
 tools: [execute, read, edit, search, web, agent, todo]

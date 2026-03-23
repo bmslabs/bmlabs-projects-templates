@@ -1,6 +1,5 @@
 ---
 agent: agent
-model: Claude Opus 4.6 (copilot)
 name: CreateLayout
 description: Crear layouts reutilizables para diferentes estructuras de página
 tools: [execute, read, edit, search, web, agent, todo]

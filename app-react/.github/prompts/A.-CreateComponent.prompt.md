@@ -1,6 +1,5 @@
 ---
 agent: agent
-model: Claude Opus 4.6 (copilot)
 name: CreateComponent
 description: Generar componentes React funcionales, tipados y reutilizables siguiendo mejores prácticas
 tools: [execute, read, edit, search, web, agent, todo]

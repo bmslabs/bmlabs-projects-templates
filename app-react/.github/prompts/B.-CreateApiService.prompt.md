@@ -1,6 +1,5 @@
 ---
 agent: agent
-model: Claude Opus 4.6 (copilot)
 name: CreateApiService
 description: Generar servicios de API para comunicación con backend, con CRUD completo
 tools: [execute, read, edit, search, web, agent, todo]

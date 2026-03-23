@@ -1,6 +1,5 @@
 ---
 agent: agent
-model: Claude Opus 4.6 (copilot)
 name: CreateForm
 description: Crear formularios completos con validación, tipos y manejo de errores
 tools: [execute, read, edit, search, web, agent, todo]

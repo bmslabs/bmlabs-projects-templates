@@ -10,7 +10,8 @@ import {
   validateEmail,
   validatePassword,
   validateRequired,
-  validateMatch
+  validateMatch,
+  ValidationError
 } from '../validators';
 
 const FormDemo: React.FC = () => {
@@ -26,30 +27,34 @@ const FormDemo: React.FC = () => {
   );
 
   // Signup Form
-  const signupForm = useForm(
-    {
-      firstName: '',
-      lastName: '',
-      email: '',
-      password: '',
-      confirmPassword: ''
-    },
+  const signupFormInitialValues = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  };
+
+  const signupForm = useForm<typeof signupFormInitialValues>(
+    signupFormInitialValues,
     {
       firstName: validateRequired,
       lastName: validateRequired,
       email: validateEmail,
       password: validatePassword,
-      confirmPassword: (value) =>
-        validateMatch(
+      confirmPassword: (value: any): ValidationError => {
+        const passwordValue = (signupForm.values as any).password || '';
+        return validateMatch(
           value as string,
-          signupForm.values.password,
+          passwordValue,
           'Passwords'
-        )
+        );
+      }
     }
   );
 
   const handleLoginSubmit =
-    loginForm.handleSubmit(async (values) => {
+    loginForm.handleSubmit(async (values: any) => {
       console.log('Login submitted:', values);
       setSubmitSuccess(true);
       setTimeout(() => setSubmitSuccess(false), 3000);
@@ -57,7 +62,7 @@ const FormDemo: React.FC = () => {
     });
 
   const handleSignupSubmit =
-    signupForm.handleSubmit(async (values) => {
+    signupForm.handleSubmit(async (values: any) => {
       console.log('Signup submitted:', values);
       setSubmitSuccess(true);
       setTimeout(() => setSubmitSuccess(false), 3000);

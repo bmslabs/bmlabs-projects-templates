@@ -41,7 +41,7 @@ export interface UseFormReturn<T> {
  */
 export const useForm = <T extends Record<string, unknown>>(
   initialValues: T,
-  validators?: Record<keyof T, (value: unknown) => ValidationError>
+  validators?: Record<keyof T, (value: any) => ValidationError>
 ): UseFormReturn<T> => {
   const [values, setValues] = useState<T>(initialValues);
   const [errors, setErrors] = useState<FormErrors>({});

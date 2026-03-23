@@ -1,9 +1,8 @@
 ---
-agent: "GitHub Copilot"
-model: "Claude - Haiku 4.5"
+agent: agent
 name: "CreateSAMLIntegration"
 description: "Generate SAML configuration and setup for enterprise SSO authentication"
-tools: ["read_file", "create_file", "edit_notebook_file"]
+tools: [execute, read, edit, search, web, agent, todo]
 argument-hint: "No arguments required - generates complete SAML setup and documentation"
 ---
 

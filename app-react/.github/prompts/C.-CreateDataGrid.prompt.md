@@ -1,6 +1,5 @@
 ---
 agent: agent
-model: Claude Opus 4.6 (copilot)
 name: CreateDataGrid
 description: Generar componentes de tabla/grilla con funcionalidades avanzadas para backoffice
 tools: [execute, read, edit, search, web, agent, todo]
