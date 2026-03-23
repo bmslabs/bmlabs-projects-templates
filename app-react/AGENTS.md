@@ -245,6 +245,250 @@ Prompts ejecutables para generar diferentes tipos de contenido.
 7. **Testing**: Verificar funcionamiento
 8. **Commit**: Realizar commit con mensaje descriptivo
 
+## Autenticación y Control de Acceso
+
+### Arquitectura de Autenticación
+
+El proyecto incluye un sistema de autenticación completo basado en:
+
+```
+┌─────────────┐
+│  Auth Pages │  Login, Signup, Profile
+│  (src/)     │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────────┐
+│  ProtectedRoute │  Envuelve rutas protegidas
+│  (components/)  │
+└──────┬──────────┘
+       │
+       ▼
+┌─────────────────┐
+│  AuthContext    │  Estado global
+│  + useAuth      │
+│  (contexts/)    │
+└──────┬──────────┘
+       │
+       ▼
+┌─────────────────┐
+│  AuthService    │  API methods
+│  (services/)    │
+└──────┬──────────┘
+       │
+       ▼
+┌─────────────────┐
+│   Backend API   │  /api/auth/*
+│   (login, etc)  │
+└─────────────────┘
+```
+
+### Componentes del Sistema de Autenticación
+
+#### 1. AuthContext + useAuth Hook
+**Ubicación**: `src/contexts/AuthContext.tsx`
+
+Gestiona:
+- Estado del usuario (User | null)
+- Token de acceso (localStorage)
+- Métodos: login(), signup(), logout(), refreshToken()
+- Helpers: hasRole(), hasPermission(), isAuthenticated
+
+```typescript
+const { user, isAuthenticated, login, logout } = useAuth();
+```
+
+#### 2. AuthService
+**Ubicación**: `src/services/authService.ts`
+
+Métodos disponibles:
+- `login(email, password)` - Autenticación básica
+- `signup(name, email, password)` - Crear nueva cuenta
+- `logout()` - Terminar sesión
+- `refreshToken(token)` - Renovar token de acceso
+- `getProfile()` - Obtener perfil del usuario
+- `updateProfile(data)` - Actualizar datos del usuario
+- `changePassword(current, new)` - Cambiar contraseña
+- `validateSAML(response)` - Validar aserción SAML
+- `getSAMLMetadata()` - Obtener metadatos SAML
+- `enable2FA()`, `verify2FA()` - Autenticación de dos factores
+
+#### 3. Páginas de Autenticación
+**Ubicación**: `src/pages/auth/`
+
+- `LoginPage.tsx` - Email + password con SAML fallback
+- `SignupPage.tsx` - Registro con términos obligatorios
+- `ProfilePage.tsx` - Editar perfil + logout + eliminación
+
+#### 4. ProtectedRoute Component
+**Ubicación**: `src/components/auth/ProtectedRoute.tsx`
+
+Protege rutas según:
+- **Autenticación**: Redirige no autenticados a /login
+- **Rol**: Requiere rol específico (admin, editor, etc)
+- **Permiso**: Requiere permiso específico (write:articles, etc)
+
+```typescript
+<ProtectedRoute requiredRole="admin">
+  <AdminPanel />
+</ProtectedRoute>
+```
+
+### Flujo de Autenticación
+
+#### Login
+1. Usuario ingresa email + password
+2. Validación client-side
+3. AuthService → POST /api/auth/login
+4. Backend retorna user + accessToken + refreshToken
+5. Tokens guardados en localStorage
+6. AuthContext actualiza estado
+7. Redirige a /dashboard
+
+#### Signup
+1. Usuario completa: name, email, password, términos
+2. Validación client-side (password match, términos aceptados)
+3. AuthService → POST /api/auth/signup
+4. Backend crea usuario, retorna auth response
+5. Usuario auto-logueado
+6. Redirige a /dashboard
+
+#### Token Refresh
+1. API retorna 401 (token expirado)
+2. apiClient interceptor detecta 401
+3. Llama AuthService.refreshToken(refreshToken)
+4. Backend valida refreshToken, retorna nuevo accessToken
+5. Reintenta request original con nuevo token
+
+#### Logout
+1. Usuario hace click en logout
+2. AuthService → POST /api/auth/logout
+3. Backend invalida tokens
+4. AuthContext limpia estado
+5. Redirige a /login
+
+### Roles y Permisos
+
+#### Estructura de Usuario
+```typescript
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  avatar?: string;
+  roles: string[];           // ["admin", "user"]
+  permissions: string[];     // ["read:articles", "write:articles"]
+  createdAt: string;
+  updatedAt: string;
+}
+```
+
+#### Roles Estándar
+- `admin` - Acceso total (read/write/delete todo)
+- `moderator` - Gestiona usuarios y contenido
+- `editor` - Crea y edita contenido
+- `user` - Solo lectura y su propio perfil
+
+#### Permisos Estándar
+```
+read:users, write:users, delete:users
+read:articles, write:articles, publish:articles, delete:articles
+manage:settings, manage:roles, view:analytics
+```
+
+### Validación de Autenticación en Backend
+
+⚠️ **IMPORTANTE**: ProtectedRoute es solo UI. El backend DEBE verificar:
+
+```typescript
+// Backend: Verificar en CADA endpoint protegido
+POST /api/admin/users
+  Headers: { Authorization: "Bearer {accessToken}" }
+  Backend:
+    1. Verificar token válido
+    2. Extraer user id
+    3. Verificar user.roles includes "admin"
+    4. Retornar datos o 403 Forbidden
+```
+
+### SAML/SSO Empresarial
+
+Si necesitas SSO corporativo (Azure AD, Okta, Google Workspace):
+
+1. Backend configura SAML 2.0 con proveedor IdP
+2. AuthService expone `validateSAML(samlResponse)`
+3. LoginPage muestra botón "Sign in with SSO"
+4. Usuario redirigido a IdP para autenticación
+5. IdP retorna SAML assertion
+6. Backend valida y crea/mapea usuario
+7. Retorna user + tokens como login normal
+
+#### Mapeo de Atributos SAML
+```
+urn:oid:0.9.2342.19200300.100.1.3 → email
+urn:oid:2.5.4.3 → name
+urn:oid:1.3.6.1.4.20037.1 → roles
+```
+
+### Seguridad
+
+✅ **Implementado**:
+- Tokens en localStorage (persistencia entre sesiones)
+- Bearer token en Authorization header
+- Token expiration (15 min access, 7 días refresh)
+- Validación de contraseña (8+ chars, letras + números)
+- Sanitización de entrada (validators)
+
+⚠️ **Recomendado en Backend**:
+- Passwords hasheados con bcrypt/argon2
+- HTTPS obligatorio (http-only cookies mejor que localStorage)
+- Rate limiting en /login, /signup, /refresh
+- CSRF protection
+- Logging de intentos fallidos
+
+### Componentes UI para Formularios
+
+Necesarios para auth forms:
+- ✅ `Input.tsx` - Campos text, email, password
+- ✅ `Checkbox.tsx` - Para términos y condiciones
+- ✅ `Button.tsx` - Ya existe
+
+### Prompts para Generar Componentes
+
+```bash
+# Auth context completo
+@copilot /I.-CreateAuthContext
+
+# Login, signup, profile pages
+@copilot /J.-CreateLoginSignupPages
+
+# Protected route component
+@copilot /K.-CreateProtectedRoute
+
+# SAML backend configuration
+@copilot /L.-CreateSAMLConfig
+```
+
+### Skills Documentados
+
+Ver archivos en `.github/skills/`:
+- `fe-create-auth-system.md` - Visión general del sistema
+- `fe-create-auth-forms.md` - Formularios con validación
+- `fe-create-protected-routes.md` - Control de acceso
+
+### Testing de Autenticación
+
+```typescript
+describe('Authentication', () => {
+  // Mock authService
+  // Test login success/failure
+  // Test token refresh
+  // Test role-based access
+  // Test logout
+  // Test protected routes redirect
+});
+```
+
 ## Herramientas Recomendadas
 
 - **IDE**: VS Code con extensiones (ESLint, Prettier, Tailwind CSS IntelliSense)

@@ -18,16 +18,41 @@ Crear un componente React funcional con las siguientes características:
 - TypeScript estricto sin `any`
 - React.memo para optimización
 - ARIA labels para accesibilidad WCAG 2.1
-- Tailwind CSS para estilos
-- JSDoc comments
-- Exportado como named export + default
+- Tailwind CSS para estilos coherentes
+- JSDoc comments documentados
+- Exportado como named export + default export
+- Prop types validation (children, className, etc)
+
+# Tipos de Componentes
+
+**ui**: Componentes de interfaz reutilizables
+- Button, Input, Modal, Checkbox, etc
+- Props genéricas: className, disabled, onClick
+- Sin lógica de negocio
+
+**form**: Componentes para manejo de formularios
+- Campos tipados con validación
+- onChange, onBlur, error handling
+- Integración con hooks useForm
+
+**layout**: Componentes de estructura de página
+- Header, Footer, Sidebar, BackofficeLayout
+- Props: children, className, theme
+- Define secciones principales
+
+**feature**: Componentes complejos con lógica
+- ProductCard, UserProfile, ProductList
+- Reutilizan componentes ui/form/layout
+- Pueden usar custom hooks
 
 # Entrada
-- Nombre del componente
+- Nombre del componente (PascalCase)
 - Tipo: 'ui', 'form', 'layout', 'feature' (default: 'ui')
 - Props específicas requeridas
+- Comportamiento esperado
 
 # Salida
-1. archivo.tsx - Componente React
-2. archivo.types.ts - Interfaces de props
-3. Ejemplo de uso
+1. component.tsx - Componente React
+2. component.types.ts - Interfaces de props y tipos
+3. Ejemplo de uso en comentario JSDoc
+4. Agregar export en components/index.ts si aplica
