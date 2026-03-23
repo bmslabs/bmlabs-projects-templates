@@ -11,13 +11,13 @@ metadata:
 # SKILL: Creación de Services en .NET Core con CrudService Base
 
 ## Propósito
-Este skill proporciona las convenciones y patrones para crear services en .NET Core siguiendo las prácticas establecidas en el proyecto SSA-EPP-BackOffice-API, basándose en el archivo `core/services/base/CrudService.cs` existente como base para todos los servicios.
+Este skill proporciona las convenciones y patrones para crear services en .NET Cor.
 
 ## Arquitectura Base
 
 ### Service Pattern implementado
 El proyecto utiliza el patrón Service con una arquitectura de 3 capas:
-1. **Interfaz genérica base**: `ICrudService<TEntity, TDto, TRepository>` - Define el contrato común
+1. **Interfaz genérica base**: `ICrudService<TEntity, TDto, TRepository>` - Define el contrato para operaciones CRUD comunes
 2. **Implementación genérica base**: `CrudService<TEntity, TDto, TRepository>` - Implementa operaciones CRUD básicas  
 3. **Services específicos**: Heredan de la base y agregan funcionalidad específica del negocio
 
@@ -25,10 +25,9 @@ El proyecto utiliza el patrón Service con una arquitectura de 3 capas:
 ```
 core/services/
 ├── base/
-│   └── CrudService.cs              # Servicio base genérico (YA EXISTE)
-├── AreaService.cs                  # Service específico simple
-├── UsuarioService.cs               # Service con lógica adicional
-├── UsuarioRecintoService.cs        # Service con relaciones many-to-many
+│   └── CrudService.cs              # Servicio base genérico 
+├── EntidadService.cs               # Service simple
+├── UsuarioService.cs               # Service simple
 └── DependencyInjectionService.cs   # Registro de DI
 ```
 
@@ -274,7 +273,7 @@ namespace bmlabs.core.services;
 /// <summary>
 /// Servicio específico para la entidad [Entidad]
 /// </summary>
-public class [Entidad]Service : CrudService<[Entidad], [Entidad]Dto, I[Entidad]Repository>, I[Entidad]Service
+public class [Entidad]Service : CrudService<[Entidad], [Entidad]Dto, I[Entidad]Repository>, I[Entidad]CrudService
 {
     /// <summary>
     /// Constructor del servicio [Entidad]
@@ -291,12 +290,12 @@ public class [Entidad]Service : CrudService<[Entidad], [Entidad]Dto, I[Entidad]R
 
 ### Reglas de Nomenclatura
 
-- **Interfaces**: `I{NombreEntidad}Service`
-- **Clases**: `{NombreEntidad}Service`
+- **Interfaces**: `I{NombreEntidad}CrudService`
+- **Clases**: `{NombreEntidad}CrudService`
 - **Namespace**: `bmlabs.core.services`
-- **Archivos**: `{NombreEntidad}Service.cs`
+- **Archivos**: `{NombreEntidad}CrudService.cs`
 - **Herencia**: `CrudService<TEntidad, TEntidadDto, ITEntidadRepository>`
-- **Implementación**: `I{NombreEntidad}Service`
+- **Implementación**: `I{NombreEntidad}CrudService`
 
 ## Funcionalidades del CrudService Base
 
@@ -749,9 +748,11 @@ public async Task<ActionResult> UpdateUsuarioRecintos(Guid usuarioId, [FromBody]
 - **Include Navigation**: Usar `includeNavigationProperties: true` cuando necesites datos relacionados
 
 ### Performance
-- **Paginación**: Usar métodos paginados para listas grandes
+- **Paginación**: Usar métodos paginados para listas grandes, no uses `FindAll` sin paginar
 - **Navegación selectiva**: Solo cargar propiedades de navegación cuando sea necesario
 - **Operaciones bulk**: Para muchas inserciones/eliminaciones, considerar operaciones masivas
+- **Caching**: Considerar el uso de caché en memoria con LRU,  para reducir llamadas repetitivas a la base de datos, para datos que no cambian frecuentemente. 
+
 
 ### Logging y Monitoreo
 ```csharp
@@ -775,11 +776,11 @@ public async Task<TDto> TrackedOperation(TDto dto)
 
 ## Checklist para Nuevo Service
 
-- [ ] Archivo creado en `core/services/`
+- [ ] Archivos creados en `core/services/`
 - [ ] Namespace correcto: `bmlabs.core.services`
 - [ ] Imports correctos: `using Microsoft.Extensions.Logging;`
-- [ ] Interfaz definida: `I{Entidad}Service : ICrudService<{Entidad}, {Entidad}Dto, I{Entidad}Repository>`
-- [ ] Implementación: `{Entidad}Service : CrudService<{Entidad}, {Entidad}Dto, I{Entidad}Repository>, I{Entidad}Service`
+- [ ] Interfaz definida: `I{Entidad}CrudService : ICrudService<{Entidad}, {Entidad}Dto, I{Entidad}Repository>`
+- [ ] Implementación: `{Entidad}CrudService : CrudService<{Entidad}, {Entidad}Dto, I{Entidad}Repository>, I{Entidad}CrudService`
 - [ ] Constructor con ILogger, IMapper y Repository principales
 - [ ] Comentarios XML para interfaz, clase y métodos públicos
 - [ ] Métodos adicionales específicos del negocio si los hay

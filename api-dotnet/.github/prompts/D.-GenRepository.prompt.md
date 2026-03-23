@@ -18,15 +18,15 @@ Generar un repositorio que implemente las operaciones básicas de CRUD y permita
 
 # instrucciones
 
-Para cada entidad {{EntityName}}, crea un repositorio.
-
+- El input debe incluir el nombre de la entidad o entidades para las cuales se generarán los Repositorios. Si no se especifica, se generarán para todas las entidades del proyecto.
 -  Incluye una clase con registro DI llamada DependencyInjectionExtensions para ser llamada en Program.cs para todos los repositorios
 -  Incluye un snippet de codigo para el uso de la clase de DI en program.cs
+
 
 # output esperado
 El resultado debe ser un conjunto de archivos bien estructurados y documentados, listos para integrarse en un proyecto ASP.NET Core. Un archivo por cada entidad {{EntityName}}Repository.cs, siguiendo las convenciones de nomenclatura y estructura de carpetas del proyecto. los archivos se deben guardar en una carpeta `repositories` dentro del proyecto.
 
-- Incluye una clase con registro DI para ser llamada en Program.cs para todos los repositorios, ejemplo 
+- Incluye una clase con registro DI para ser llamada en Program.cs para todos los repositorios. 
 - Asegurate que compilado y que no hay errores de sintaxis o referencias faltantes.
 
 

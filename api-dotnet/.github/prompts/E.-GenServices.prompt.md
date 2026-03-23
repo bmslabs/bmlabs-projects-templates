@@ -16,7 +16,8 @@ Generar un service genérico en .NET 8 que implemente las operaciones básicas d
 - be-create-services
 
 # instrucciones
-Generar un service por cada entidad {{EntityName}}. 
+- El input debe incluir el nombre de la EntityName o EntityNames para las cuales se generarán los Services. Si no se especifica, se generarán para todas los EntityName del proyecto.
+Generar un service por cada Entidad {{EntityName}}. 
 
 # output esperado
 El resultado debe ser un conjunto de archivos bien estructurados y documentados, listos para integrarse en un proyecto ASP.NET Core. 
@@ -24,6 +25,7 @@ El resultado debe ser un conjunto de archivos bien estructurados y documentados,
 - Comentarios XML breves en tipos públicos para facilitar la comprensión y el mantenimiento del código. 
 
 - Un archivo por cada entidad {{EntityName}}Service.cs, siguiendo las convenciones de nomenclatura y estructura de carpetas del proyecto. los archivos se deben guardar en una carpeta `core/services/` dentro del proyecto.
+-  Incluye una clase con registro DI llamada DependencyInjectionExtensions para ser llamada en Program.cs para todos los Servicios
 
 - Asegurate que compilado y que no hay errores de sintaxis o referencias faltantes.
 

@@ -11,7 +11,7 @@ argument-hint: "Please provide the necessary details for the model generation, l
 Eres un asistente experto en arquitectura .NET (ASP.NET Core 8), diseño de APIs y limpieza de código. Tu tarea es generar DTOs, mapeos y validadores impecables para una entidad, siguiendo el estándar de una API moderna, segura y mantenible.
 
 # Objetivo
-Generar DTOs, validadores y mapeos para una entidades en .NET 8, asegurando que cumplan con las mejores prácticas de diseño y seguridad. El resultado debe ser un conjunto de archivos bien estructurados y documentados, listos para integrarse en un proyecto ASP.NET Core.
+Generar DTOs, validadores y mapeos para las entidades en .NET 8, asegurando que cumplan con las mejores prácticas de diseño y seguridad. El resultado debe ser un conjunto de archivos bien estructurados y documentados, listos para integrarse en un proyecto ASP.NET Core.
 
 # Skills
 	- be-create-dtos
@@ -19,7 +19,10 @@ Generar DTOs, validadores y mapeos para una entidades en .NET 8, asegurando que 
 	- be-create-validators
 
 # Input
-   Entidades en el proyecto  que se encuentran en el archivo Context.cs.
+	
+	- El input debe incluir el nombre de la entidad o entidades para las cuales se generarán los DTOs, validadores y mapeos. Si no se especifica, se generarán para todas las entidades del proyecto.
+
+
 
 # Instrucciones (OBLIGATORIAS)
 	1.	DTOs
@@ -76,6 +79,9 @@ Generar DTOs, validadores y mapeos para una entidades en .NET 8, asegurando que 
 	•	Idempotencia en updates: UpdateDto debe permitir actualización parcial (propiedades nullable).
 	•	Internacionalización de mensajes: mensajes en español claro; no mezclar idiomas.
 	•	Documentación: breve <summary> y, si procede, <remarks> indicando supuestos.
+	•	Evitar lógica de negocio en validadores o mappers; solo reglas de formato y mapeo directo.
+	•	Revisar que no se expongan campos de navegación complejos en los DTOs; solo IDs o datos planos necesarios.
+
 
 # Output
 Genera los archivos en una carpeta /DTOs en la raíz del proyecto, siguiendo la estructura:
@@ -85,6 +91,6 @@ Genera los archivos en una carpeta /DTOs en la raíz del proyecto, siguiendo la 
    
 Cada Dto se almacena en su propio archivo siguiendo la convención de nombres core/dtos/{{EntityName}}Dto.cs, los validadores en core/dtos/validators/{{EntityName}}DtoValidator.cs y los perfiles de mapeo en core/dtos/mapping/{{EntityName}}Profile.cs.  
 
-
 •	Incluye una clase AddMappersValidators con registro DI para ser llamada en Program.cs para AutoMapper y FluentValidation.
+ verifica que todo este compilando y que no haya errores de sintaxis o referencias. No dejes código sin usar o comentarios TODO. El código debe estar listo para producción, limpio y siguiendo las mejores prácticas de diseño de APIs en .NET 8.
 

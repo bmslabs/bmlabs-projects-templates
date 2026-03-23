@@ -11,7 +11,7 @@ metadata:
 # SKILL: Creación de Controllers en .NET Core Web API
 
 ## Propósito
-Este skill proporciona las convenciones y patrones para crear controllers en .NET Core Web API siguiendo las prácticas establecidas en el proyecto SSA-EPP-BackOffice-API, basándose en los controllers existentes y sus implementaciones reales.
+Este skill proporciona las convenciones y patrones para crear controllers en .NET Core Web API, basándose en los controllers existentes y sus implementaciones reales.
 
 ## Arquitectura de Controllers
 
@@ -23,11 +23,16 @@ Los controllers siguen un patrón consistente con las siguientes característica
 4. **Documentación XML**: Swagger/OpenAPI con respuestas documentadas
 5. **Manejo consistente de errores**: try-catch estándar con logging
 
+
+### Perfomance
+No exponer métodos que puedan retornar grandes cantidades de datos sin paginación o filtros adecuados. Evitar métodos como `FindAll` o `GetAll` si la entidad puede tener más de 50 registros.
+
+
 ### Estructura de Archivos
 ```
 controllers/
 ├── AuthController.cs        # Autenticación OIDC especial
-├── CrudController.cs         # Controllers de operaciones CRUD estándar
+├── CrudController.cs        # Controllers de operaciones CRUD estándar
 
 
 ``` 
@@ -84,12 +89,12 @@ public class [Entidad]Controller : ControllerBase
 
 ### Reglas de Nomenclatura
 
-- **Controllers**: `{NombreEntidad}Controller`
+- **Controllers**: `{Nombre}Controller`
 - **Rutas**: `api/v1/[controller]` (versioning explícito)
 - **Métodos HTTP**: Nombres descriptivos del negocio, no genéricos
 - **Parámetros**: camelCase en query parameters
 - **Responses**: PascalCase en propiedades de respuesta
-- **Servicios**: Inyección usando interfaces `I{Entidad}Service`
+- **Servicios**: Inyección usando interfaces `I{Nombre}Service`
 
 ## Patrones de Endpoints Comunes
 
@@ -125,32 +130,7 @@ public async Task<ActionResult<[Entidad]Dto>> GetById(Guid id)
 }
 ```
 
-### 2. GetAll - Listar Todas las Entidades
-
-```csharp
-/// <summary>
-/// Obtiene todas las entidades disponibles
-/// </summary>
-/// <returns>Lista completa de entidades</returns>
-/// <response code="200">Lista de entidades obtenida exitosamente</response>
-[HttpGet("All")]
-public async Task<ActionResult<List<[Entidad]Dto>>> GetAll()
-{
-    try
-    {
-        var entidades = await _[entidad]Service.ListAsync();
-        return Ok(entidades);
-    }
-    catch (Exception ex)
-    {
-        while (ex.InnerException != null) ex = ex.InnerException;
-        _logger.LogError($"Error Source:{ex.Source}, Trace:{ex}");
-        return Problem(detail: ex.Message, title: "ERROR");
-    }
-}
-```
-
-### 3. Search - Búsqueda Paginada con Filtros
+### 2. Search - Búsqueda Paginada con Filtros
 
 ```csharp
 /// <summary>
@@ -207,7 +187,7 @@ public async Task<ActionResult<object>> Search(
 }
 ```
 
-### 4. Upsert - Crear o Actualizar (Patrón Preferido)
+### 3. Upsert - Crear o Actualizar (Patrón Preferido)
 
 ```csharp
 /// <summary>
@@ -279,7 +259,7 @@ public async Task<ActionResult<object>> Upsert([FromBody] [Entidad]Dto dto)
 }
 ```
 
-### 5. CreateOrUpdate - Alternativa al Upsert
+### 4. CreateOrUpdate - Alternativa al Upsert
 
 ```csharp
 /// <summary>
@@ -1266,26 +1246,7 @@ namespace bmslabs.controllers
             }
         }
 
-        /// <summary>
-        /// Obtiene todas las entidades disponibles
-        /// </summary>
-        /// <returns>Lista completa de entidades</returns>
-        /// <response code="200">Lista de entidades obtenida exitosamente</response>
-        [HttpGet("All")]
-        public async Task<ActionResult<List<[Entidad]Dto>>> GetAll()
-        {
-            try
-            {
-                var entidades = await _[entidad]Service.ListAsync();
-                return Ok(entidades);
-            }
-            catch (Exception ex)
-            {
-                while (ex.InnerException != null) ex = ex.InnerException;
-                _logger.LogError($"Error Source:{ex.Source}, Trace:{ex}");
-                return Problem(detail: ex.Message, title: "ERROR");
-            }
-        }
+
 
         /// <summary>
         /// Obtiene entidades paginadas con filtros opcionales
@@ -1432,5 +1393,7 @@ namespace bmslabs.controllers
 - [ ] Documentación Swagger con response codes
 - [ ] Manejo de archivos si aplica (FromForm, validaciones de tamaño y tipo)
 - [ ] Endpoints especializados según lógica de negocio
+- [ ] Métodos [NonAction] para testing o compatibilidad si es necesario
+- [ ] No exponer metodos FindAll o GetAll si la entidad pudiese tener mas de 50 registros
 - [ ] Autorización apropiada por endpoint si se requiere diferente de [Authorize]
 
