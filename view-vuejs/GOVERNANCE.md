@@ -157,10 +157,10 @@ Antes de mergear código nuevo:
 - **Lucide Vue Next** (^0.546.0) — Icons
 - **JWT Decode** (^4.0.0) — Auth token parsing
 
-### Nota sobre xlsx
-- **Versión**: 0.20.3 desde CDN oficial SheetJS (no npm)
-- **Razón**: Versión npm (<0.20.2) tiene vulnerabilidades Prototype Pollution + ReDoS
-- **Status**: `pnpm audit` = 0 vulnerabilidades críticas
+### Nota sobre exportación Excel
+- La dependencia `xlsx` no viene preinstalada en el template base.
+- Si un módulo la requiere, instalar desde un registro de paquetes verificado (o mirror interno), nunca desde URLs externas directas.
+- Mantener la verificación de seguridad con `pnpm audit` antes de merge.
 
 ---
 

@@ -83,6 +83,6 @@ npm run build
 - `L.-GenerateFullStackWorkflow.prompt.md`: Compactado 68 → 20 líneas
 - `F.-CreateView.prompt.md`: Reintroducido para vistas sin formulario
 
-✅ **Estado de deps**: `pnpm audit` = 0 vulnerabilidades (xlsx v0.20.3 desde CDN oficial)
+✅ **Estado de deps**: `pnpm audit` = 0 vulnerabilidades críticas en el baseline del template
 
 📋 **Phase 2**: Super-prompt `/Z-GenerateFromSwagger` disponible (Swagger JSON → Full Stack en 1 invocación)
