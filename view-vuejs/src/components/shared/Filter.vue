@@ -7,7 +7,7 @@ interface Props {
   modelValue: string | null
   isActive?: boolean
   type?: 'text' | 'date' | 'select'
-  options?: Array<{ id: string; nombre: string }>
+  options?: Array<{ id: string; name: string }>
   valueKey?: string
   labelKey?: string
 }
@@ -103,7 +103,7 @@ const handleClickOutside = (event: MouseEvent): void => {
         >
           <option value="">Seleccionar...</option>
           <option v-for="option in options" :key="option[valueKey || 'id']" :value="option[valueKey || 'id']">
-            {{ option[labelKey || 'nombre'] }}
+            {{ option[labelKey || 'name'] }}
           </option>
         </select>
 
