@@ -2,6 +2,52 @@
 
 > Código fuente extraído del proyecto base `test-clean-agentic-app`. DEBES replicar estos patrones exactos.
 
+## Regla Crítica (Contract-First)
+
+- Nunca asumir un único modo de autenticación.
+- Siempre priorizar el contrato real entregado por Swagger o por el usuario.
+- Si el usuario entrega endpoint y response body, ese contrato manda por sobre ejemplos legacy.
+
+### Modos soportados
+
+1. Cookie HttpOnly (`/auth/login`, `/auth/me`).
+2. Bearer JWT con `sessionStorage('auth_token')` (ej: `/api/v1/Registro/Login` con `access_token`).
+
+---
+
+## Perfil Registro JWT (obligatorio si el backend responde token)
+
+### Login endpoint
+
+- `POST /api/v1/Registro/Login`
+
+### Request
+
+```json
+{
+  "email": "admin@dominio.com",
+  "password": "********"
+}
+```
+
+### Response ejemplo
+
+```json
+{
+  "access_token": "ey...",
+  "expiration": 3600,
+  "sessionContext": null,
+  "usuarioId": "00000000-0000-0000-0000-000000000001"
+}
+```
+
+### Mapeo mínimo requerido
+
+- Guardar token en `sessionStorage('auth_token')`.
+- Persistir solo `user` en `localStorage('auth_user')`.
+- No bloquear login por ausencia de campos secundarios si hay token válido.
+- Parser robusto: aceptar `access_token | accessToken | token | jwt` y payload envuelto en `data` o `result`.
+
 ---
 
 ## 1. Auth Service (`auth.service.ts`)
@@ -11,7 +57,7 @@
 import httpClient from '../http-client'
 
 export interface LoginCredentials {
-  usernameOrEmail: string
+  email: string
   password: string
 }
 
@@ -28,6 +74,10 @@ export interface AuthUser {
 }
 
 export interface LoginResponse {
+  accessToken: string
+  expiration: number
+  usuarioId: string
+  metadata?: Record<string, unknown>
   user: AuthUser
 }
 
@@ -36,17 +86,42 @@ export interface CheckAuthResponse {
 }
 
 /**
- * Servicio de autenticación — los tokens viajan en cookies HttpOnly.
- * El frontend NO almacena tokens; solo persiste la info del usuario.
+ * Servicio de autenticación contract-first.
+ * Si login devuelve token, el frontend lo persiste en sessionStorage('auth_token').
  */
 export class AuthService {
-  private static readonly BASE_URL = '/auth'
+  private static readonly BASE_URL = '/v1/Registro'
 
   static async login(credentials: LoginCredentials): Promise<LoginResponse> {
-    const response = await httpClient.post<LoginResponse>(
-      `${this.BASE_URL}/login`, credentials, { skipErrorHandler: true },
+    const response = await httpClient.post<{
+      access_token?: string
+      accessToken?: string
+      token?: string
+      jwt?: string
+      expiration?: number
+      usuarioId?: string
+      [key: string]: unknown
+    }>(
+      `${this.BASE_URL}/Login`, credentials, { skipErrorHandler: true },
     )
-    return response.data
+    const accessToken =
+      response.data.access_token || response.data.accessToken || response.data.token || response.data.jwt
+    if (!accessToken) throw new Error('La API no devolvio token de autenticacion.')
+
+    const usuarioId = response.data.usuarioId || credentials.email
+    return {
+      accessToken,
+      expiration: response.data.expiration ?? 0,
+      usuarioId,
+      metadata: {
+        sessionContext: response.data.sessionContext ?? null,
+      },
+      user: {
+        id: usuarioId,
+        name: credentials.email.split('@')[0] || 'Usuario',
+        email: credentials.email,
+      },
+    }
   }
 
   static async loginWithGoogle(idToken: string): Promise<LoginResponse> {
@@ -61,13 +136,13 @@ export class AuthService {
   }
 
   static async checkAuth(): Promise<CheckAuthResponse> {
-    const response = await httpClient.get<CheckAuthResponse>(`${this.BASE_URL}/me`)
+    const response = await httpClient.get<CheckAuthResponse>('/auth/me')
     return response.data
   }
 
   static async forgotPassword(email: string): Promise<{ message: string }> {
     const response = await httpClient.post<{ message: string }>(
-      `${this.BASE_URL}/forgot-password`, { email }, { skipErrorHandler: true },
+      `/auth/forgot-password`, { email }, { skipErrorHandler: true },
     )
     return response.data
   }
@@ -76,7 +151,7 @@ export class AuthService {
     token: string; newPassword: string; confirmPassword: string
   }): Promise<{ message: string }> {
     const response = await httpClient.post<{ message: string }>(
-      `${this.BASE_URL}/reset-password`, data, { skipErrorHandler: true },
+      `/auth/reset-password`, data, { skipErrorHandler: true },
     )
     return response.data
   }
@@ -103,10 +178,10 @@ export const useAuthStore = defineStore('auth', () => {
   // isAuthenticated verifica el token en sessionStorage (Bearer token)
   const isAuthenticated = computed(() => !!sessionStorage.getItem(TOKEN_STORAGE_KEY))
 
-  const setSession = (payload: { user: AuthUser; token?: string }) => {
+  const setSession = (payload: { user: AuthUser; accessToken: string }) => {
     user.value = payload.user
     localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(payload.user))
-    sessionStorage.setItem(TOKEN_STORAGE_KEY, payload.token || 'authenticated')
+    sessionStorage.setItem(TOKEN_STORAGE_KEY, payload.accessToken)
   }
 
   const clearSession = () => {
@@ -117,7 +192,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   const login = async (credentials: LoginRequestDto) => {
     const response = await AuthService.login(credentials)
-    setSession({ user: response.user, token: response.accessToken || response.token })
+    setSession({ user: response.user, accessToken: response.accessToken })
   }
 
   const loadFromStorage = () => {
@@ -137,7 +212,7 @@ export const useAuthStore = defineStore('auth', () => {
       return false
     }
     try {
-      const response = await AuthService.me()
+      const response = await AuthService.checkAuth()
       if (!response.user) {
         clearSession()
         return false
