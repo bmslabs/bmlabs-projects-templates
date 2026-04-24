@@ -73,3 +73,4 @@ Una vista `.vue` que orquesta componentes compartidos siguiendo el patrón 12/3.
 ## Referencias y Código Reutilizable
 **DEBES leer estas referencias antes de generar código:**
 - [VER PLANTILLA CRUD](./references/TEMPLATES_CRUD.md)
+- [VER PATRONES DE LAYOUT Y DISTRIBUCIÓN](./references/LAYOUT_PATTERNS.md)

@@ -17,12 +17,14 @@ Completar el setup en 6 pasos sin preguntas intermedias. Prioriza reutilizar arc
 <critical_rules>
 1. MODO ORQUESTADOR: Ejecuta los pasos 1-6 en una sola corrida.
 2. SWAGGER: Si el input es URL, descarga con curl. Si falla, usa fallback `/api/v1/Registro/Login`.
-3. GUARD CRITICO: En `src/router/index.ts` agrega `beforeEach` usando `sessionStorage.getItem('auth_token')`.
+3. GUARD CRITICO: En `src/router/index.ts` el guard usa patrón RETURN (Vue Router 4) — prohibido `next()`.
 4. SIDEBAR ESTANDAR: Debe seguir el patrón definido por las referencias locales de skills del repositorio.
 5. REUTILIZACION: Si existen `AppSidebar`, `DefaultLayout`, `GlobalSearch`, debes reutilizarlos y ajustar, no reinventar.
-6. UI DE AUTH: Para Login usa solo `FormInput`, `AppButton`, `AppBreadcrumb`.
+6. UI DE AUTH: Para Login usa solo `FormInput`, `AppButton`, `AppBreadcrumb`. SSO (Google/Microsoft) SOLO si el usuario lo solicita explícitamente.
 7. API CONTRACT LOCK: Si el usuario entrega endpoint y body response, debes respetarlos literal y no inferir contratos alternativos.
 8. NO SIMULACION: Prohibido crear token mock/simulado o fallback "authenticated".
+9. DEFAULT REDIRECT: Siempre usar `DEFAULT_AFTER_LOGIN_ROUTE` de `@/constants/auth.constants`. Nunca hardcodear `/dashboard`.
+10. RUTAS PROTEGIDAS POR DEFECTO: Todas las rutas dentro del layout usan `meta: { requiresAuth: true }`. Solo `/auth/login` y `/auth/callback` usan `meta: { public: true }`.
 </critical_rules>
 
 <minimal_reads>
@@ -52,10 +54,14 @@ Descargar Swagger (si es URL) y configurar `.env` + `api.config.ts`.
 Generar `src/types/auth.types.ts` y `src/validators/auth.validator.ts`.
 
 ## PASO 3 — Auth Infrastructure
+Leer skill `vue-create-auth-forms/SKILL.md` antes de generar.
 Crear `http-client.ts`, `auth.service.ts` y `auth.store.ts` (Pinia). La persistencia es obligatoria.
 - Si login responde `access_token`, guardarlo en `sessionStorage['auth_token']`.
 - El parser de login debe aceptar claves comunes: `access_token`, `accessToken`, `token`, `jwt`.
 - No exigir campos extra para validar login (ej: no bloquear por `usuarioId` si el token existe).
+- En `AUTH_API_ENDPOINTS`, definir `ME: null` si no hay endpoint `/me` — el store lo omite en lugar de fallar con 404.
+- En `auth.constants.ts` definir `DEFAULT_AFTER_LOGIN_ROUTE = APP_ROUTES.HOME` (o la ruta que corresponda).
+- SSO (Google/Microsoft) solo si el usuario lo solicita explícitamente — ver `vue-create-auth-forms/references/OAUTH_PATTERNS.md`.
 
 ## PASO 4 — AppSidebar & Navigation
 Implementar/ajustar `AppSidebar` con el contrato de sidebar estándar.
@@ -66,15 +72,22 @@ Implementar/ajustar `AppSidebar` con el contrato de sidebar estándar.
 - Integrar `GlobalSearch` con filtrado dinámico y navegación por teclado.
 
 ## PASO 6 — Routing & Vistas Finales
-- Crear `LoginView.vue` y `DashboardView.vue`.
-- Configurar guard:
+Leer skill `vue-create-protected-routes/SKILL.md` antes de generar.
+- Crear `LoginView.vue` (patrón A por defecto) y `DashboardView.vue` / `HomeView.vue`.
+- Ruta de login: `/auth/login` con `meta: { public: true }`.
+- Todas las rutas bajo `DefaultLayout` usan `meta: { requiresAuth: true }`.
+- Guard con patrón return (Vue Router 4, sin `next()`):
   ```typescript
-  router.beforeEach((to, from, next) => {
-    const isAuthenticated = !!sessionStorage.getItem('auth_token')
-    if (to.name !== 'login' && !isAuthenticated) next({ name: 'login' })
-    else next()
+  router.beforeEach(async (to) => {
+    const authStore = useAuthStore()
+    if (to.meta.public) return          // login, callback — siempre pasan
+    await authStore.checkAuthIfNeeded() // solo si AUTH_API_ENDPOINTS.ME != null
+    if (!authStore.isAuthenticated) {
+      return { name: 'login', query: { redirect: to.fullPath } }
+    }
   })
   ```
+- Post-login redirect en `LoginView`: `route.query.redirect ?? DEFAULT_AFTER_LOGIN_ROUTE`.
 </step_sequence>
 
 <final_verification>
