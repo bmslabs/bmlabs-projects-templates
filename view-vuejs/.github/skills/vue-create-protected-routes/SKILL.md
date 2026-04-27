@@ -23,8 +23,9 @@ Implementar un sistema de seguridad en el lado del cliente que impida el acceso 
 Si el usuario requiere securizar rutas o implementar guardias de navegación, entonces DEBES seguir este estándar técnico:
 
 ### 1. Configuración de Meta Data
-- Todas las rutas que requieran autenticación deben incluir el atributo `meta: { requiresAuth: true }`.
-- Las rutas públicas opcionales pueden incluir `meta: { public: true }`.
+- **Por defecto, toda ruta nueva es privada** (`meta: { requiresAuth: true }`). Solo agregar `meta: { public: true }` cuando se declare explícitamente que la ruta es pública.
+- Las rutas de login/auth siempre son `meta: { public: true }`.
+- `meta.role` o `meta.permission` solo se agregan si el usuario los solicita; estar autenticado es suficiente por defecto.
 
 ### 2. Inyección de Auth Store
 - Inicializar `useAuthStore()` DENTRO de `router.beforeEach` (no a nivel de módulo).
@@ -32,8 +33,9 @@ Si el usuario requiere securizar rutas o implementar guardias de navegación, en
 - Evitar lectura de sesión hardcodeada en múltiples archivos; usar constantes compartidas cuando existan.
 
 ### 3. Lógica de Redirección Inteligente
-- **Privacidad**: Si `requiresAuth` es true y no hay sesión activa → Redirigir a `{ name: 'login', query: { redirect: to.fullPath } }`.
-- **Pre-Login**: Si el usuario intenta acceder a la ruta de login pero ya tiene sesión → Redirigir a `{ name: 'dashboard' }`.
+- **Privacidad**: Si la ruta no es `meta.public` y no hay sesión activa → Redirigir a `{ name: 'login', query: { redirect: to.fullPath } }`.
+- **Pre-Login**: Si el usuario intenta acceder al login pero ya tiene sesión → Redirigir a `DEFAULT_AFTER_LOGIN_ROUTE` (`/home` por defecto).
+- **Post-Login**: Usar `route.query.redirect` si existe, luego la ruta especificada por el usuario, luego `DEFAULT_AFTER_LOGIN_ROUTE`. NUNCA hardcodear `/dashboard`.
 - **Ruta de login**: `/auth/login` (nombre: `'login'`). NO usar `/login`.
 - Prevenir bucles de redirección: si `to.name === 'login'` y no hay sesión, permitir navegación.
 
@@ -52,11 +54,12 @@ Si el usuario requiere securizar rutas o implementar guardias de navegación, en
 
 ## Checklist de Calidad
 
-- [ ] ¿Se definió `meta: { requiresAuth: true }` en las rutas privadas?
+- [ ] ¿Se definió `meta: { requiresAuth: true }` en las rutas privadas (default en toda ruta nueva)?
 - [ ] ¿Se usa `useAuthStore` para la validación de sesión?
 - [ ] ¿Se inicializa `useAuthStore()` dentro de `beforeEach`?
 - [ ] ¿Se redirige al login ante falta de credenciales?
-- [ ] ¿Se previene el "doble login" redirigiendo al dashboard?
+- [ ] ¿Se previene el "doble login" redirigiendo a `DEFAULT_AFTER_LOGIN_ROUTE` (no a `{ name: 'dashboard' }`)?
+- [ ] ¿Post-login redirige a `/home` por defecto (no a `/dashboard` hardcodeado)?
 - [ ] ¿Se evita el uso de `next()` en guards nuevos?
 - [ ] ¿Se previenen bucles de redirección?
 - [ ] ¿Se utiliza importación dinámica para las vistas?
@@ -69,7 +72,4 @@ La configuración completa de un `router.beforeEach` robusto que actúa como fir
 Para generar el código con el máximo nivel de detalle, DEBES leer los ejemplos reales, validaciones Zod y arquitectura de BM ubicados en la referencia técnica:
 - [VER CÓDIGO FUENTE REAL ORIGEN](./references/REAL_ROUTES.md)
 
-Fuentes productivas consideradas para esta referencia consolidada:
-- `airexp-backoffice-app`
-- `ssa-epp-backoffice-app`
-- `polpaico-muestreo-app`
+Fuentes productivas consideradas para esta referencia consolidada (anonimizadas).

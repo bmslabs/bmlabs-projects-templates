@@ -41,6 +41,13 @@ src/
 
 ## Reglas Inflexibles
 
+✅ **Precedencia de Contrato (Obligatoria)**:
+- Si el usuario entrega parametros en la invocacion (endpoint, payload, response body), eso tiene prioridad maxima.
+- Luego manda Swagger/OpenAPI.
+- Prompt/referencias locales se usan solo como fallback cuando no hay contrato explicito.
+- Prohibido inventar contratos alternativos si ya hay uno definido por el usuario.
+- Prohibido simular token/sesion (`mock-token`, `authenticated`) salvo instruccion explicita del usuario.
+
 ✅ **Type-Safety**:
 - `<script setup lang="ts">` siempre
 - Props & Emits: interfaces explícitas

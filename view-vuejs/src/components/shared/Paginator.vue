@@ -10,7 +10,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  recordsPerPage: 10,
+  recordsPerPage: 5,
   currentPage: 1,
   showRecordsPerPage: true,
 })
@@ -20,7 +20,17 @@ const emit = defineEmits<{
   'update:recordsPerPage': [pageSize: number]
 }>()
 
-const totalPages = computed(() => Math.ceil(props.totalRecords / props.recordsPerPage))
+const normalizedRecordsPerPage = computed<number>(() => {
+  return props.recordsPerPage > 0 ? props.recordsPerPage : 5
+})
+
+const pageSizeOptions = computed<number[]>(() => {
+  const defaults = [5, 10, 15, 20, 25, 50, 100]
+  if (defaults.includes(normalizedRecordsPerPage.value)) return defaults
+  return [...defaults, normalizedRecordsPerPage.value].sort((a, b) => a - b)
+})
+
+const totalPages = computed(() => Math.ceil(props.totalRecords / normalizedRecordsPerPage.value))
 
 const canGoPrevious = computed(() => props.currentPage > 1)
 
@@ -40,12 +50,15 @@ const goToNext = (): void => {
 
 const handlePageSizeChange = (event: Event): void => {
   const newSize = parseInt((event.target as HTMLSelectElement).value, 10)
-  emit('update:recordsPerPage', newSize)
+  emit('update:recordsPerPage', Number.isNaN(newSize) ? 5 : newSize)
 }
 
-const startRecord = computed(() => (props.currentPage - 1) * props.recordsPerPage + 1)
+const startRecord = computed(() => {
+  if (props.totalRecords === 0) return 0
+  return (props.currentPage - 1) * normalizedRecordsPerPage.value + 1
+})
 
-const endRecord = computed(() => Math.min(props.currentPage * props.recordsPerPage, props.totalRecords))
+const endRecord = computed(() => Math.min(props.currentPage * normalizedRecordsPerPage.value, props.totalRecords))
 </script>
 
 <template>
@@ -66,15 +79,11 @@ const endRecord = computed(() => Math.min(props.currentPage * props.recordsPerPa
         </label>
         <select
           id="records-per-page"
-          :value="recordsPerPage"
+          :value="normalizedRecordsPerPage"
           class="px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:border-blue-500"
           @change="handlePageSizeChange"
         >
-          <option value="5">5</option>
-          <option value="10">10</option>
-          <option value="20">20</option>
-          <option value="50">50</option>
-          <option value="100">100</option>
+          <option v-for="size in pageSizeOptions" :key="size" :value="size">{{ size }}</option>
         </select>
       </div>
 
