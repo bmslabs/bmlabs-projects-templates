@@ -59,9 +59,10 @@ Implementar interfaces de acceso seguras usando `useAuthStore` (Pinia Setup Stor
 - Soporte dark mode en todos los bloques visibles (fondo, card, texto, bordes).
 
 ### 5. Navegación Post-Autenticación
-- Redirección a `/dashboard` tras login exitoso con `router.push()`.
-- Si hay `?redirect=` en la query, usar esa ruta. Ruta de fallback: `/dashboard`.
+- **Prioridad de redirect**: `route.query.redirect` → ruta especificada por el usuario → `/home` (fallback por defecto).
+- NO usar `/dashboard` como fallback por defecto a menos que el usuario lo especifique explícitamente.
 - Ruta de login: `/auth/login` (NO `/login`).
+- Usar `DEFAULT_AFTER_LOGIN_ROUTE` de `@/constants/auth.constants` en lugar de hardcodear la ruta.
 
 ## Checklist de Calidad
 
@@ -71,12 +72,32 @@ Implementar interfaces de acceso seguras usando `useAuthStore` (Pinia Setup Stor
 - [ ] ¿Error global y errores de campo individuales?
 - [ ] ¿Responsive y dark mode?
 - [ ] ¿`<script setup lang="ts">`?
-- [ ] ¿Google login opcional?
+- [ ] ¿Redirect usa `DEFAULT_AFTER_LOGIN_ROUTE` (no ruta hardcodeada)?
+- [ ] ¿SSO (Google/Microsoft) solo si fue solicitado explícitamente?
 
-## Que Genera
-- `LoginView.vue` y/o `SignupView.vue` con formularios validados con Zod.
+## Qué Genera
+- `LoginView.vue` + opcionalmente `ForgotPasswordView.vue`, `ResetPasswordView.vue`, `AuthCallbackView.vue`.
+
+## Selección de Patrón
+
+**REGLA CRÍTICA**: Los patrones B (Microsoft SSO) y C (Google OAuth) **SOLO se generan si el usuario los solicita explícitamente**. Si el usuario no menciona SSO/OAuth/Microsoft/Google, usar siempre el Patrón A.
+
+Antes de generar, determinar el patrón según esta prioridad:
+1. **Parámetros explícitos del usuario** (endpoint, payload, response body dados en el prompt)
+2. **Swagger/OpenAPI** (si se proporciona)
+3. **Fallback**: Patrón A — Username/Password + JWT
+
+| Señal en el contrato | Patrón | Vistas a generar |
+|---------------------|--------|------------------|
+| Endpoint con `email`/`username` + `password` en request | **A — JWT** (DEFAULT) | `LoginView`, `ForgotPassword*` (solo si hay endpoint) |
+| Usuario solicita "Microsoft" / "MSAL" + el frontend gestiona el token de Azure | **B — MSAL directo** | `LoginView` (solo botón), `AuthCallbackView`, `useMsal` composable. Instalar `@azure/msal-browser`. |
+| Usuario solicita "Google" / "Google OAuth" (complemento o único) | **A+Google** | `LoginView` + `useGoogleLogin` composable. Sin npm extra. |
+| SSO via backend (backend redirige a Microsoft/AD, cookie de sesión) | **C — SSO delegado** | `LoginView` (solo botón), `AuthCallbackView` (verifica `/profile`). Sin MSAL npm. |
+| Sin token en response (cookie session, sin OAuth) | **D — Cookie** | `LoginView` simple, sin sessionStorage |
 
 ## Referencias y Código Reutilizable
 **DEBES leer estas referencias antes de generar código:**
-- [Login visual corporativo (referencia)](./references/LOGIN_VISUAL_REFERENCE.vue)
-- [VER CÓDIGO FUENTE REAL ORIGEN](./references/REAL_AUTH.md)
+- [VER CÓDIGO FUENTE REAL ORIGEN](./references/REAL_AUTH.md) — Patrón A (JWT) con código completo
+- [OAUTH PATTERNS REF](./references/OAUTH_PATTERNS.md) — Patrones B/C/D: MSAL directo, SSO delegado al backend, Google OAuth
+  - Incluye: preguntas a hacer al usuario, variables `.env`, composables, `AuthCallbackView`, checklist por patrón
+
