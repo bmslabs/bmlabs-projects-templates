@@ -110,9 +110,9 @@ export class AuthService {
     )
     const accessToken =
       response.data.access_token || response.data.accessToken || response.data.token || response.data.jwt
-    if (!accessToken) throw new Error('La API no devolvio token de autenticacion.')
+    if (!accessToken) throw new Error('La API no devolvió token de autenticación.')
 
-    const usuarioId = response.data.usuarioId || credentials.email
+    const usuarioId = response.data.usuarioId ?? credentials.email
     return {
       accessToken,
       expiration: response.data.expiration ?? 0,
