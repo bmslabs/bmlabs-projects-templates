@@ -280,7 +280,7 @@ const handleLogin = async () => {
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMsal } from '@/composables/useMsal'
 import { useAuthStore } from '@/stores/auth.store'
@@ -296,19 +296,37 @@ const success = ref(false)
 const alreadyAuthenticated = ref(false)
 const countdown = ref(3)
 const errorCountdown = ref(10)
+const successInterval = ref<ReturnType<typeof setInterval> | null>(null)
+const errorInterval = ref<ReturnType<typeof setInterval> | null>(null)
+
+const clearRedirectIntervals = () => {
+  if (successInterval.value) {
+    clearInterval(successInterval.value)
+    successInterval.value = null
+  }
+  if (errorInterval.value) {
+    clearInterval(errorInterval.value)
+    errorInterval.value = null
+  }
+}
 
 const startSuccessRedirect = () => {
-  const iv = setInterval(() => {
+  if (successInterval.value) clearInterval(successInterval.value)
+  successInterval.value = setInterval(() => {
     countdown.value--
-    if (countdown.value <= 0) { clearInterval(iv); router.replace(DEFAULT_AFTER_LOGIN_ROUTE) }
+    if (countdown.value <= 0) {
+      clearRedirectIntervals()
+      router.replace(DEFAULT_AFTER_LOGIN_ROUTE)
+    }
   }, 1000)
 }
 
 const startErrorRedirect = (withLogout = false) => {
-  const iv = setInterval(() => {
+  if (errorInterval.value) clearInterval(errorInterval.value)
+  errorInterval.value = setInterval(() => {
     errorCountdown.value--
     if (errorCountdown.value <= 0) {
-      clearInterval(iv)
+      clearRedirectIntervals()
       if (withLogout) logout().finally(() => router.replace('/auth/login'))
       else router.replace('/auth/login')
     }
@@ -352,6 +370,10 @@ onMounted(async () => {
     error.value = err instanceof Error ? err.message : 'Error en el proceso de autenticación'
     startErrorRedirect(true)
   }
+})
+
+onUnmounted(() => {
+  clearRedirectIntervals()
 })
 </script>
 ```
