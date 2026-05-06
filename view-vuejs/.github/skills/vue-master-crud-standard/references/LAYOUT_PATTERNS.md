@@ -133,7 +133,7 @@ const openFlyout = inject<(item: NavigationItem, anchor: HTMLElement) => void>('
     </div>
 
     <main
-      class="content relative z-0 transition-[margin-left] ease-in-out duration-500 pt-5 px-2 md:px-5 pb-4"
+      class="content relative z-0 transition-[margin-left] ease-in-out duration-500 pt-20 px-2 md:px-5 pb-4"
       :class="{ 'md:ml-[48px]': !isSidebarOpenOnDesktop, 'md:ml-60': isSidebarOpenOnDesktop }"
     >
       <RouterView />
