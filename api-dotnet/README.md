@@ -2,9 +2,19 @@
 
 ## Uso de la herramienta (Primero)
 
+### Paso 0: Incluir playbook como submódulo
+
+Para la construcción de una API .NET, primero debes incluir este repositorio como submódulo en la rama `main`:
+
+```bash
+git submodule add -b main https://github.com/bmslabs/bmlabs-ai-playbook-api-dotnet .github
+```
+
+Con esto tendrás disponible el prompt [0.-Genesis.prompt.md](.github/prompts/0.-Genesis.prompt.md).
+
 ### Prompt de arranque: Genesis
 
-El primer paso recomendado es gatillar el prompt `0.-Genesis.prompt.md`, que inicializa un proyecto API .NET desde cero con estructura y archivos base.
+Después de agregar el submódulo, el primer paso recomendado es gatillar el prompt `0.-Genesis.prompt.md`, que inicializa un proyecto API .NET desde cero con estructura y archivos base.
 
 #### Cómo gatillarlo
 
