@@ -1,5 +1,41 @@
 # API .NET Template
 
+## Uso de la herramienta (Primero)
+
+### Prompt de arranque: Genesis
+
+El primer paso recomendado es gatillar el prompt `0.-Genesis.prompt.md`, que inicializa un proyecto API .NET desde cero con estructura y archivos base.
+
+#### Cómo gatillarlo
+
+Ejemplo:
+
+```bash
+@copilot /Genesis projectName=bmlabs-playbook-backoffice-api
+```
+
+#### Resultado esperado
+
+- Crea el proyecto API .NET en la raíz del workspace.
+- Genera la estructura mínima para los demás prompts:
+    - `controllers`
+    - `core`
+    - `core/dtos`
+    - `core/entities`
+    - `core/repositories`
+    - `core/services`
+    - `database`
+    - `docs`
+    - `helpers`
+- Crea archivos base requeridos:
+    - `.env.example`
+    - `.dockerignore`
+    - `.gitignore`
+    - `DockerFile`
+    - `README.MD` (inicial)
+- Copia `.github/copilot-instructions.md` como `AGENTS.md` en la raíz.
+- Deja `README.MD` con instrucciones iniciales de uso y disparo del flujo Genesis.
+
 ## Descripción
 
 Este es un template para la construcción de APIs backend robustas, seguras y mantenibles usando ASP.NET Core. El proyecto está diseñado como una guía y base para futuros proyectos, implementando mejores prácticas de arquitectura, seguridad y observabilidad.
