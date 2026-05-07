@@ -1,3 +1,7 @@
 [submodule "api-dotnet/.github"]
 	path = api-dotnet/.github
 	url = https://github.com/bmslabs/bmlabs-ai-playbook-api-dotnet
+[submodule "view-vuejs/.github"]
+	path = view-vuejs/.github
+	url = https://github.com/bmslabs/bmlabs-ai-playbook-app-vuejs
+	branch = main
